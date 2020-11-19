@@ -24,6 +24,9 @@ class Hero:
         self.alive()
         return msg
 
+    def print_status(self):
+        print(f"You have {self.health} health and {self.power} power.")
+
 
 class Goblin:
     def __init__(self, health, power):
@@ -37,12 +40,14 @@ class Goblin:
             msg = "Goblin is dead"
             return msg
 
-
     def attack(self, hero):
         hero.health() -= self.power
         msg = (f"The goblin does {self.power} damage to you.")
         self.alive()
         return msg
+
+    def print_status(self):
+        print(f"The goblin has {self.health} health and {self.power} power.")
 
 def main():
     # hero_health = 10
@@ -54,8 +59,10 @@ def main():
     goblin = Goblin(6, 2)
 
     while goblin.alive() and hero.alive():
-        print("You have {} health and {} power.".format(hero.health, hero.power))
-        print("The goblin has {} health and {} power.".format(goblin.health, goblin.power))
+        # print("You have {} health and {} power.".format(hero.health, hero.power))
+        # print("The goblin has {} health and {} power.".format(goblin.health, goblin.power))
+        hero.print_status()
+        goblin.print_status()
         print()
         print("What do you want to do?")
         print("1. fight goblin")
