@@ -5,9 +5,13 @@
 # 1. fight goblin
 # 2. do nothing - in which case the goblin will attack him anyway
 # 3. flee
+from random import randint as r
+
+## Super Class
 
 class Character:
-    def __init__(self, health, power):
+    def __init__(self, name, health, power):
+        self.name = name
         self.health = health
         self.power = power
 
@@ -15,62 +19,329 @@ class Character:
         if self.health > 0:
             return True
 
-class Hero(Character):
-
     def attack(self, enemy):
-        enemy.health -= self.power
-        print(f"You do {self.power} damage to the goblin.")
-        if enemy.health <= 0:
-            print("The goblin is dead.")
+        if enemy.name == "Spider":
+            enemy.webBlock()
+        elif self.name == "Ninja":
+            self.name.knockOut()
+        elif enemy.name == "Hero":
+            if enemy.armor >= 2:
+                # enemy.health -= self.power - enemy.armor
+                print(f"{self.name} does {(self.power - enemy.armor)} damage to the {enemy.name}.")
+                enemy.takes_damage((self.power - enemy.armor))  
+            elif enemy.evade >= 2:
+                enemy.evade_attack()
+            else:
+                enemy.health -= self.power
+                print(f"{self.name} does {self.power} damage to the {enemy.name}.")
+                enemy.takes_damage(self.power) 
+        elif enemy.name == "Shadow":
+            chance = r(1,10)
+            if chance == 1:
+                # enemy.health -= self.power
+                print(f"{self.name} does {self.power} damage to the {enemy.name}.")
+                enemy.takes_damage(self.power) 
+        else:
+            enemy.health -= self.power
+            print(f"{self.name} does {self.power} damage to the {enemy.name}.")
+            enemy.takes_damage(self.power)  
+            # if enemy == "Medic":
+            #     enemy.recuperate()
+            if enemy.health <= 0:
+                print(f"The {enemy.name} is dead.")
+            elif self.health <= 0:
+                print(f"{self.name} is dead.")
+        
+
+    def takes_damage(self, damage):
+        self.health -= damage
+        print(f"{self.name} takes {damage} in damage.\n")
+        
 
     def print_status(self):
-        print(f"You have {self.health} health and {self.power} power.")
+        print(f"{self.name} has {self.health} health and {self.power} power.")
+    
 
+## Sub-classes
 
+class Hero(Character):
+    def __init__(self, name, health, power, coins, armor, evade, stake):
+        super().__init__(name, health, power)
+        self.coins = coins
+        self.armor = armor
+        self.evade = evade
+        self.stake = stake
+
+    def attack(self, enemy):
+        chance = r(1,5)
+        if chance == 1:
+            # enemy.health -= self.power * 2
+            print(f"{self.name} does DOUBLE DAMAGE of {self.power} to the {enemy.name}.")
+            enemy.takes_damage(self.power * 2) 
+        else:
+            enemy.takes_damage(self.power) 
+            # enemy.health -= self.power
+            # print(f"{self.name} does {self.power} damage to the {enemy.name}.")
+
+    def totalBounty(self, enemy):
+        self.coins += enemy.coins
+        print(f"Hero recieved {enemy.coins} coins for defeating the {enemy.name}.")
+        print(f"{self.name} now has {self.coins} total coins.\n")
+
+    def evade_attack(self, enemy):
+        chance = r(1,10)
+        if self.evade == 2:
+            if chance == 1:
+                print(f"{self.name} evaded the attack!")
+        if self.evade == 4:
+            if chance < 3:
+                print(f"{self.name} evaded the attack!")
+        if self.evade == 6:
+            if chance < 5:
+                print(f"{self.name} evaded the attack!")
+        if self.evade == 8:
+            if chance < 7:
+                print(f"{self.name} evaded the attack!")
+        if self.evade == 10:
+            if chance < 9:
+                print(f"{self.name} evaded the attack!")
+        else:
+            # enemy.health -= self.power
+            self.name.takes_damage(enemy.power) 
+            print(f"{enemy.name} does {enemy.power} damage to the {self.name}.")
+
+    # def takes_damage(self, enemy):
+    #     if self.armor >= 2:
+    #         # enemy.health -= self.power - enemy.armor
+    #         self.health -= enemy.power - self.armor
+    #         print(f"{self.name} takes {enemy.power - self.armor} in damage.\n")
+    #     elif self.evade >= 2:
+    #         self.evade_attack()
 
 class Goblin(Character):
+    def __init__(self, name, health, power, coins = 6):
+        self.coins = coins
+        super().__init__(name, health, power)
+
+class Zombie(Character):
+    def alive(self, hero):
+        True
+        if hero.weapon >= 1:
+            print("Hero has used a Zombie Stake.")
+            False
+
+class Medic(Character):
+    def __init__(self, name, health, power, coins = 10):
+        self.coins = coins
+        super().__init__(name, health, power)
+
+    def recuperate(self):
+        self.health += 2
+
+    # def takes_damage(self, enemy):
+    #     self.health -= enemy.power()
+    #     chance = r(1,5)
+    #     if chance == 1:
+    #         self.name.recuperate()
+
+class Shadow(Character):
+    def __init__(self, name, health, power, coins = 9):
+        self.coins = coins
+        super().__init__(name, health, power)
+
+    # def takes_damage(self, enemy):
+    #     chance = r(1,10)
+    #     if chance == 1:
+    #         self.health -= enemy.power
+    #         print(f"{enemy.name} does {enemy.power} damage to the {self.name}.")
+
+class Spider(Character):
+    def __init__(self, name, health, power, coins = 5):
+        self.coins = coins
+        super().__init__(name, health, power)
+
+    def webBlock(self, enemy):
+        chance = r(1,5)
+        if chance == 1:
+            print(f"{self.name} has BLOCKED the {enemy.name}'s attack with a web shield.")
+        else:
+            enemy.health -= self.power
+            print(f"{self.name} does {self.power} damage to the {enemy.name}.")
+    
+    # def takes_damage(self):
+    #     self.webBlock(self.name, enemy.name)
+
+
+class Ninja(Character):
+    def __init__(self, name, health, power, coins = 7):
+        self.coins = coins
+        super().__init__(name, health, power)
+
+    def knockOut(self, enemy):
+        enemy.health == 0
+        print(f"KNOCK OUT!")
 
     def attack(self, enemy):
-        enemy.health -= self.power
-        print(f"The goblin does {self.power} damage to you.")
-        if enemy.health <= 0:
-            print("You are dead.")
+        chance = r(1,10)
+        if chance == 1:
+            self.name.knockOut(self.name, enemy.name)
+        else:
+            enemy.takes_damage(self.power) 
 
-    def print_status(self):
-        print(f"The goblin has {self.health} health and {self.power} power.")
 
+## Store Items
+
+class SuperTonic:
+    def buy(self, hero):
+        hero.health += 10
+        hero.coins -= 5
+        print("Hero has bought 10 health points.")
+        return hero.health
+
+class Armor:
+    def buy(self, hero):
+        hero.armor += 2
+        hero.coins -= 5
+        print("Hero has bought 2 armor points.")
+        return hero.armor
+
+class Evade:
+    def buy(self, hero):
+        hero.evade += 2
+        hero.coins -= 5
+        print("Hero has bought 2 evade points.")
+        return hero.evade
+
+class MegaPower:
+    def buy(self, hero):
+        hero.power += 2
+        hero.coins -= 5
+        print("Hero has bought 2 power points.")
+        return hero.power
+
+class ZombieStake:
+    def buy(self, hero):
+        hero.coins -= 20
+        hero.stake += 1
+        print("Hero has bought 1 Zombie Stake.")
+        return hero.stake
+
+## Store
+
+class Store:
+    def goToStore(self, hero):
+        print(f'''
+Hero has entered the store!
+1 -- Super Tonic (5 coins)
+2 -- Armor (5 coins)
+3 -- Evade (5 coins)
+4 -- Mega Power (5 coins)
+5 -- Zombie Stake (20 coins)
+6 -- Exit the Store
+        ''')
+        while True:
+            print(f"Hero has {hero.coins} coins.")
+            print("What would you like the Hero to buy?")
+            print("> ", end=' ')
+            userChoice = input()
+            if userChoice == "1":
+                if hero.coins >= 5:
+                    item = SuperTonic()
+                    item.buy(hero)
+                else:
+                    print("Hero does not have enough coins.")
+            elif userChoice == "2":
+                if hero.coins >= 5:
+                    item = Armor()
+                    item.buy(hero)
+                else:
+                    print("Hero does not have enough coins.")
+            elif userChoice == "3":
+                if hero.coins >= 5:
+                    item = Evade()
+                    item.buy(hero)
+                else:
+                    print("Hero does not have enough coins.")
+            elif userChoice == "4":
+                if hero.coins >= 5:
+                    item = MegaPower()
+                    item.buy(hero)
+                else:
+                    print("Hero does not have enough coins.")
+            elif userChoice == "5":
+                if hero.coins >= 20:
+                    item = ZombieStake()
+                    item.buy(hero)
+                else:
+                    print("Hero does not have enough coins.")
+            elif userChoice == "6":
+                print("Now leaving the store.")
+                break
+            else:
+                print(f"Invalid input {userChoice}")           
+
+## Battle
+
+class Battle:
+    def start_battle(self, hero, enemy):
+        store = Store()
+        while enemy.alive() and hero.alive():
+            hero.print_status()
+            enemy.print_status()
+            print()
+            print("What do you want the Hero to do?")
+            print("1 -- Fight")
+            print("2 -- Do Nothing")
+            print("3 -- Flee")
+            print("4 -- Enter Store")
+            print("> ", end=' ')
+            raw_input = input()
+            if raw_input == "1":
+                hero.attack(enemy)
+            elif raw_input == "2":
+                pass
+            elif raw_input == "3":
+                print("Goodbye.")
+                break
+            elif raw_input == "4":
+                store.goToStore(hero)
+            else:
+                print(f"Invalid input {raw_input}")
+            if enemy.alive():
+                enemy.attack(hero)
+            else:
+                print(f'{enemy.name} is dead.\n')
+                hero.totalBounty(enemy)
+            if not hero.alive():
+                print(f"{enemy.name} has defeated {hero.name}.")
+                print("YOU LOSE!")
+                break
+
+## Game
 
 def main():
 
-    hero = Hero(10, 5)
-    goblin = Goblin(6, 2)
+    hero = Hero("Hero", 10, 5, 0, 0, 0, 0)
+    goblin = Goblin("Goblin", 6, 2)
+    zombie = Zombie("Zombie", 100, 2)
+    medic = Medic("Medic", 10, 2)
+    shadow = Shadow("Shadow", 1, 2)
+    spider = Spider("Spider", 8, 3)
+    ninja = Ninja("Ninja", 5, 1)
 
-    while goblin.alive() and hero.alive():
-        hero.print_status()
-        goblin.print_status()
-        print()
-        print("What do you want to do?")
-        print("1. fight goblin")
-        print("2. do nothing")
-        print("3. flee")
-        print("> ", end=' ')
-        raw_input = input()
-        if raw_input == "1":
-            # Hero attacks goblin
-            hero.attack(goblin)
+    enemies = [goblin, medic, shadow, spider, ninja, zombie]
+
+    battle = Battle()
+
+    while hero.alive():
+        for enemy in enemies:
+            battle.start_battle(hero, enemy)
+            if not hero.alive():
+                break
             
-        elif raw_input == "2":
-            pass
-        elif raw_input == "3":
-            print("Goodbye.")
-            break
-        else:
-            print(f"Invalid input {raw_input}")
+        print("YOU WIN!")
+        break
 
-        if goblin.health > 0:
-            # Goblin attacks hero
-            goblin.attack(hero)
             
 
 main()
-
