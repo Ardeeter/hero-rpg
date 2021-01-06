@@ -26,18 +26,8 @@ class Character:
                 enemy.takes_damage((self.power - enemy.armor))  
             else:
                 enemy.takes_damage(self.power) 
-        elif enemy.name == "Shadow":
-            chance = r(1,10)
-            if chance == 1:
-                # enemy.health -= self.power
-                print(f"{self.name} does {self.power} damage to the {enemy.name}.")
-                enemy.takes_damage(self.power) 
         else:
-            enemy.health -= self.power
-            print(f"{self.name} does {self.power} damage to the {enemy.name}.")
             enemy.takes_damage(self.power)  
-            # if enemy == "Medic":
-            #     enemy.recuperate()
             if enemy.health <= 0:
                 print(f"The {enemy.name} is dead.")
             elif self.health <= 0:
@@ -75,8 +65,7 @@ class Hero(Character):
                 enemy.takes_damage(self.power * 2) 
             else:
                 enemy.takes_damage(self.power) 
-            # enemy.health -= self.power
-            # print(f"{self.name} does {self.power} damage to the {enemy.name}.")
+
 
     def totalBounty(self, enemy):
         self.coins += enemy.coins
@@ -105,14 +94,6 @@ class Hero(Character):
             print(f"{self.name} takes {damage} in damage.\n")
             
 
-    # def takes_damage(self, enemy):
-    #     if self.armor >= 2:
-    #         # enemy.health -= self.power - enemy.armor
-    #         self.health -= enemy.power - self.armor
-    #         print(f"{self.name} takes {enemy.power - self.armor} in damage.\n")
-    #     elif self.evade >= 2:
-    #         self.evade_attack()
-
 class Goblin(Character):
     def __init__(self, name, health, power, coins = 6):
         self.coins = coins
@@ -131,22 +112,17 @@ class Medic(Character):
     def recuperate(self):
         self.health += 2
 
-    # def takes_damage(self, enemy):
-    #     self.health -= enemy.power()
-    #     chance = r(1,5)
-    #     if chance == 1:
-    #         self.name.recuperate()
 
 class Shadow(Character):
     def __init__(self, name, health, power, coins = 9):
         self.coins = coins
         super().__init__(name, health, power)
 
-    # def takes_damage(self, enemy):
-    #     chance = r(1,10)
-    #     if chance == 1:
-    #         self.health -= enemy.power
-    #         print(f"{enemy.name} does {enemy.power} damage to the {self.name}.")
+    def takes_damage(self, damage):
+        chance = r(1,10)
+        if chance == 1:
+            self.health -= power
+            print(f"{self.name} takes {damage} in damage.\n")
 
 class Spider(Character):
     def __init__(self, name, health, power, coins = 5):
@@ -191,47 +167,56 @@ class Ninja(Character):
             enemy.takes_damage(self.power) 
 
 
-## Store Items
-
-class SuperTonic:
-    def buy(self, hero):
-        hero.health += 10
-        hero.coins -= 5
-        print("Hero has bought 10 health points.")
-        return hero.health
-
-class Armor:
-    def buy(self, hero):
-        hero.armor += 2
-        hero.coins -= 5
-        print("Hero has bought 2 armor points.")
-        return hero.armor
-
-class Evade:
-    def buy(self, hero):
-        hero.evade += 2
-        hero.coins -= 5
-        print("Hero has bought 2 evade points.")
-        return hero.evade
-
-class MegaPower:
-    def buy(self, hero):
-        hero.power += 2
-        hero.coins -= 5
-        print("Hero has bought 2 power points.")
-        return hero.power
-
-class ZombieStake:
-    def buy(self, hero):
-        hero.coins -= 20
-        hero.stake += 1
-        print("Hero has bought 1 Zombie Stake.")
-        return hero.stake
-
 ## Store
 
+
+
 class Store:
+
+    def buy(self, hero, item):     
+        item_price = item["price"]
+        item_name = item["name"]
+        item_value = item["value"]
+
+        attr = getattr(hero, item_name)
+        updatedAttr = attr + item_value
+        updatedCoins = getattr(hero, "coins") - item_price
+
+        setattr(hero, item_name, updatedAttr)
+        setattr(hero, "coins", updatedCoins)
+        
+        print(f"Hero has bought {item_value} {item_name}")
+    
+
     def goToStore(self, hero):
+        inventory = [      
+            {
+                "name": "health",
+                "price": 5,
+                "value": 10,
+            },
+            {
+                "name": "armor",
+                "price": 20,
+                "value": 2
+            },
+            {
+                "name": "evade",
+                "price": 5,
+                "value": 2
+            },
+            {
+                "name": "power",
+                "price": 5,
+                "value": 2
+            },
+            {
+                "name": "stake",
+                "price": 20,
+                "value": 1
+            }  
+
+        ]
         print(f'''
 Hero has entered the store!
 1 -- Super Tonic (5 coins)
@@ -241,46 +226,25 @@ Hero has entered the store!
 5 -- Zombie Stake (20 coins)
 6 -- Exit the Store
         ''')
-        while True:
+        stay = True
+        while stay:
             print(f"Hero has {hero.coins} coins.")
             print("What would you like the Hero to buy?")
             print("> ", end=' ')
             userChoice = input()
-            if userChoice == "1":
-                if hero.coins >= 5:
-                    item = SuperTonic()
-                    item.buy(hero)
-                else:
-                    print("Hero does not have enough coins.")
-            elif userChoice == "2":
-                if hero.coins >= 5:
-                    item = Armor()
-                    item.buy(hero)
-                else:
-                    print("Hero does not have enough coins.")
-            elif userChoice == "3":
-                if hero.coins >= 5:
-                    item = Evade()
-                    item.buy(hero)
-                else:
-                    print("Hero does not have enough coins.")
-            elif userChoice == "4":
-                if hero.coins >= 5:
-                    item = MegaPower()
-                    item.buy(hero)
-                else:
-                    print("Hero does not have enough coins.")
-            elif userChoice == "5":
-                if hero.coins >= 20:
-                    item = ZombieStake()
-                    item.buy(hero)
-                else:
-                    print("Hero does not have enough coins.")
-            elif userChoice == "6":
+            if (userChoice == "6"):
                 print("Now leaving the store.")
-                break
+                stay = False
             else:
-                print(f"Invalid input {userChoice}")           
+                item = inventory[int(userChoice) - 1]
+
+                if not int(userChoice) >= len(inventory) or not int(userChoice) <= 0:
+                    if (hero.coins >= item["price"]):
+                        self.buy(hero, item)
+                    else:
+                        print("Hero does not have enough coins.")
+                else:
+                    print(f"Invalid input {userChoice}")           
 
 ## Battle
 
@@ -317,6 +281,47 @@ class Battle:
             if not hero.alive():
                 print(f"{enemy.name} has defeated {hero.name}.")
                 print("YOU LOSE!")
+                print(
+                """
+                                _,.-------.,_
+                            ,;~'             '~;,
+                          ,;                     ;,
+                         ;                         ;
+                        ,'                         ',
+                       ,;                           ;,
+                       ; ;      .           .      ; ;
+                       | ;   ______       ______   ; |
+                       |  `/~"     ~" . "~     "~\'  |
+                       |  ~  ,-~~~^~, | ,~^~~~-,  ~  |
+                        |   |        }:{        |   |
+                        |   l       / | \       !   |
+                        .~  (__,.--" .^. "--.,__)  ~.
+                        |     ---;' / | \ `;---     |
+                         \__.       \/^\/       .__/
+                          V| \                 / |V
+       __                  | |T~\___!___!___/~T| |                  _____
+    .-~  ~"-.              | |`IIII_I_I_I_IIII'| |               .-~     "-.
+   /         \             |  \,III I I I III,/  |              /           Y
+  Y          ;              \   `~~~~~~~~~~'    /               i           |
+  `.   _     `._              \   .       .   /               __)         .'
+    )=~         `-.._           \.    ^    ./           _..-'~         ~"<_
+ .-~                 ~`-.._       ^~~~^~~~^       _..-'~                   ~.
+/                          ~`-.._           _..-'~                           Y
+{        .~"-._                  ~`-.._ .-'~                  _..-~;         ;
+ `._   _,'     ~`-.._                  ~`-.._           _..-'~     `._    _.-
+    ~~"              ~`-.._                  ~`-.._ .-'~              ~~"~
+  .----.            _..-'  ~`-.._                  ~`-.._          .-~~~~-.
+ /      `.    _..-'~             ~`-.._                  ~`-.._   (        ".
+Y        `=--~                  _..-'  ~`-.._                  ~`-'         |
+|                         _..-'~             ~`-.._                         ;
+`._                 _..-'~                         ~`-.._            -._ _.'
+   "-.="      _..-'~                                     ~`-.._        ~`.
+    /        `.                                                ;          Y
+   Y           Y                                              Y           |
+   |           ;                                              `.          /
+   `.       _.'                                                 "-.____.-'
+
+                """)
                 break
 
 ## Game
@@ -335,7 +340,109 @@ def main():
 
     battle = Battle()
 
+    print(
+    """
+
+                                      /|
+                                     |\|
+                                     |||
+                                     |||
+                                     |||
+                                     |||
+                                     |||
+                                     |||
+                                  ~-[{o}]-~
+                                     |/|
+                                     |/|
+             ///~`     |\\_          `0'         =\\\\         . .
+            ,  |='  ,))\_| ~-_                    _)  \      _/_/|
+           / ,' ,;((((((    ~ \                  `~~~\-~-_ /~ (_/
+         /' -~/~)))))))'\_   _/'                      \_  /'  D   |
+        (       (((((( ~-/ ~-/                          ~-;  /    \--_
+         ~~--|   ))''    ')  `                            `~~\_    \   )
+             :        (_  ~\           ,                    /~~-     ./
+              \        \_   )--__  /(_/)                   |    )    )|
+    ___       |_     \__/~-__    ~~   ,'      /,_;,   __--(   _/      |
+  //~~\`\    /' ~~~----|     ~~~~~~~~'        \-  ((~~    __-~        |
+((()   `\`\_(_     _-~~-\                      ``~~ ~~~~~~   \_      /
+ )))     ~----'   /      \                                   )       )
+  (         ;`~--'        :                                _-    ,;;(
+            |    `\       |                             _-~    ,;;;;)
+            |    /'`\     ;                          _-~          _/
+           /~   /    |    )                         /;;;''  ,;;:-~
+          |    /     / | /                         |;;'   ,''
+          /   /     |  \\|                         |   ,;(    
+        _/  /'       \  \_)                   .---__\_    \,--._______
+       ( )|'         (~-_|                   (;;'  ;;;~~~/' `;;|  `;;;
+        ) `\_         |-_;;--__               ~~~----__/'    /'_______/
+        `----'       (   `~--_ ~~~;;------------~~~~~ ;;;'_/'
+                     `~~~~~~~~'~~~-----....___;;;____---~~
+
+
+
+                     Initilizing new game...
+    """
+)
+    print(
+    """
+
+  
+                    |>>>                        |>>>
+                    |                           |
+                _  _|_  _                   _  _|_  _
+               | |_| |_| |                 | |_| |_| |
+               \  .      /                 \ .    .  /
+                \    ,  /                   \    .  /
+                 | .   |_   _   _   _   _   _| ,   |
+                 |    .| |_| |_| |_| |_| |_| |  .  |
+                 | ,   | .    .     .      . |    .|
+                 |   . |  .     . .   .  ,   |.    |
+     ___----_____| .   |.   ,  _______   .   |   , |---~_____
+_---~            |     |  .   /+++++++\    . | .   |         ~---_
+                 |.    | .    |+++++++| .    |   . |              ~-_
+              __ |   . |   ,  |+++++++|.  . _|__   |                 ~-_
+     ____--`~    '--~~__ .    |++++ __|----~    ~`---,              ___^~-__
+-~--~                   ~---__|,--~'                  ~~----_____-~'   `~----~
+
+
+
+    Welcome to the Castle! 
+    We have been waiting a long time for you to arrive. 
+    It seems are town has been overrun by evil creatures! 
+    We need your help to kill these monsters!
+
+    """)
+
     while hero.alive():
+        print(
+        """
+
+                  (  (|              .
+              )   )\/ ( ( (
+      *  (   ((  /     ))\))  (  )    )
+    (     \   )\(          |  ))( )  (|
+    >)     ))/   |          )/  \((  ) 
+    (     (      .        -.     V )/   )(    (
+     \   /     .   \            .       \))   ))
+       )(      (  | |   )            .    (  /
+      )(    ,'))     \ /          \( `.    )
+      (\>  ,'/__      ))            __`.  /
+     ( \   | /  ___   ( \/     ___   \ | ( (
+      \.)  |/  /   \__      __/   \   \|  ))
+     .  \. |>  \      | __ |      /   <|  /
+          )/    \____/ :..: \____/     \ <
+   )   \ (|__  .      / ;: \          __| )  (
+  ((    )\)  ~--_     --  --      _--~    /  ))
+   \    (    |  ||               ||  |   (  /
+         \.  |  ||_             _||  |  /
+           > :  |  ~V+-I_I_I-+V~  |  : (.
+          (  \:  T\   _     _   /T  : ./
+           \  :    T^T T-+-T T^T    ;<
+            \..`_       -+-       _'  )
+               . `--=.._____..=--'. ./         
+
+
+        """)
         for enemy in enemies:
             battle.start_battle(hero, enemy)
             if not hero.alive():
@@ -343,8 +450,47 @@ def main():
             
         if hero.alive():
             print("YOU WIN!")
-        
-        break
+            break
+
+    print("""
+             .=.,
+            ;c =\\
+          __|  _/
+        .'-'-._/-'-._
+       /..   ____    \\
+      /' _  [<_->] )  \\
+     (  / \--\_>/-/'._ )
+      \-;_/\__;__/ _/ _/
+       '._}|==o==\{_\/
+        /  /-._.--\  \_
+       // /   /|   \ \ \\
+      / | |   | \;  |  \ \\
+     / /  | :/   \: \   \_\\
+    /  |  /.'|   /: |    \ \\
+    |  |  |--| . |--|     \_\\
+    / _/   \ | : | /___--._) \\
+   |_(---'-| >-'-| |       '-'
+          /_/     \_\\
+    """)
+    print("You have saved our village! \nFinally we can go back to a life of peace! \nOur hero!")
+    print(
+        """
+                                 .''.
+       .''.             *''*    :_\/_:     . 
+      :_\/_:   .    .:.*_\/_*   : /\ :  .'.:.'.
+  .''.: /\ : _\(/_  ':'* /\ *  : '..'.  -=:o:=-
+ :_\/_:'.:::. /)\*''*  .|.* '.\'/.'_\(/_'.':'.'
+ : /\ : :::::  '*_\/_* | |  -= o =- /)\    '  *
+  '..'  ':::'   * /\ * |'|  .'/.\'.  '._____
+      *        __*..* |  |     :      |.   |' .---"|
+       _*   .-'   '-. |  |     .--'|  ||   | _|    |
+    .-'|  _.|  |    ||   '-__  |   |  |    ||      |
+    |' | |.    |    ||       | |   |  |    ||      |
+ ___|  '-'     '    ""       '-'   '-.'    '`      |____
+jgs~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        """
+    )   
+
 
             
 
